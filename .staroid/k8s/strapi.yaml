@@ -1,0 +1,111 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: strapi-deployment
+spec:
+  replicas: 1
+  strategy:
+    type: "Recreate"
+  selector:
+    matchLabels:
+      app: strapi
+  template:
+    metadata:
+      labels:
+        app: strapi
+        pod.staroid.com/isolation: dedicated
+        pod.staroid.com/instance-type: standard-2
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+      - name: postgres
+        image: postgres:12.3
+        env:
+        - name: POSTGRES_USER
+          value: strapi
+        - name: POSTGRES_PASSWORD
+          value: strapi
+        - name: POSTGRES_DB
+          value: strapi
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata
+        volumeMounts:
+        - name: app-volume
+          mountPath: /var/lib/postgresql/data
+          subPath: db
+      - name: strapi
+        image: strapi/strapi:latest
+        env:
+        - name: DATABASE_CLIENT
+          value: postgres
+        - name: DATABASE_USERNAME
+          value: strapi
+        - name: POSTGRES_PASSWORD
+          value: strapi
+        - name: DATABASE_NAME
+          value: strapi
+        - name: DATABASE_HOST
+          value: localhost
+        - name: DATABASE_PORT
+          value: "5432"
+        readinessProbe:
+          httpGet:
+            path: /admin
+            port: 1337
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        volumeMounts:
+        - name: app-volume
+          mountPath: /srv/app
+          subPath: app
+      - name: cloudcmd
+        image: coderaiser/cloudcmd:14.5.1-alpine
+        args: [ "--one-file-panel", "--root", "/mnt" ]
+        volumeMounts:
+          - name: app-volume
+            mountPath: /mnt
+        env:
+          - name: HOME
+            value: /
+      volumes:
+      - name: app-volume
+        persistentVolumeClaim:
+          claimName: app-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: app-pvc
+spec:
+  storageClassName: ssd
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: strapi-service
+spec:
+  ports:
+  - port: 1337
+  selector:
+    app: strapi
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: file-manager
+  annotations:
+    service.staroid.com/link: "show"
+spec:
+  ports:
+  - name: http
+    port: 8000
+  selector:
+    app: strapi
