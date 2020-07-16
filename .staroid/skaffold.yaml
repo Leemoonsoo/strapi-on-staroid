@@ -1,5 +1,6 @@
 apiVersion: skaffold/v2beta1
 kind: Config
+build: {}
 deploy:
   kubectl:
     manifests:

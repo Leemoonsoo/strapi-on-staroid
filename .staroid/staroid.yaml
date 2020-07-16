@@ -21,8 +21,14 @@ deploy:
           value: standard-8
         paths:
         - Deployment:strapi-deployment:spec.template.metadata.labels["pod.staroid.com/instance-type"]
+      - name: Disk size
+        description: "Persistent disk size for database and app"
+        type: STRING
+        defaultValue: 5Gi
+        paths:
+        - PersistentVolumeClaim:app-pvc:spec.resources.requests.storage
       - name: strapi image
-        description: strapi docker image
+        description: "strapi docker image"
         type: STRING
         defaultValue: strapi/strapi:latest
         optional: false
