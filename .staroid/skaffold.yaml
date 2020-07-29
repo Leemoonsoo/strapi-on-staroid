@@ -5,6 +5,7 @@ deploy:
   kubectl:
     manifests:
     - .staroid/k8s/strapi.yaml
+  statusCheckDeadlineSeconds: 360
 profiles:
   - name: minikube
     patches:
