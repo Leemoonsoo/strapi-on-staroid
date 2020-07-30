@@ -1,4 +1,9 @@
+# This file explains how to build, deploy the project.
+# see https://docs.staroid.com/references/staroid_yaml.html to learn more.
+#
 apiVersion: beta/v1
+starRank:
+  rate: 1.0   # community rate
 build:
   skaffold:
     file: .staroid/skaffold.yaml

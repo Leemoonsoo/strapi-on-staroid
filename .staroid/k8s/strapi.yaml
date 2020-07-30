@@ -13,7 +13,7 @@ spec:
     metadata:
       labels:
         app: strapi
-        pod.staroid.com/isolation: dedicated
+        pod.staroid.com/isolation: dedicated # since persistent volume claim (for db) is supported only in dedicated mode
         pod.staroid.com/instance-type: standard-2
     spec:
       securityContext:
@@ -102,7 +102,7 @@ apiVersion: v1
 metadata:
   name: file-manager
   annotations:
-    service.staroid.com/link: "show"
+    service.staroid.com/link: "show" # This will display link to the service on staroid management console
 spec:
   ports:
   - name: http

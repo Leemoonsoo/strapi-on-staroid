@@ -1,3 +1,6 @@
+# Skaffold handles the workflow for building and deploying kubernetes resources.
+# see https://skaffold.dev/docs/references/yaml for more details.
+#
 apiVersion: skaffold/v2beta1
 kind: Config
 build: {}
